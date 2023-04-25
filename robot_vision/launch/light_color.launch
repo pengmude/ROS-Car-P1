@@ -1,0 +1,21 @@
+<launch>
+
+    <arg name="h_lower" default="112"/>  
+    <arg name="s_lower" default="173"/>  
+    <arg name="v_lower" default="132"/> 
+
+    <arg name="h_upper" default="255"/>  
+    <arg name="s_upper" default="255"/>  
+    <arg name="v_upper" default="255"/>
+
+    <node pkg="robot_vision" name="lightcolor" type="light_detector.py" output="screen">
+        <param name="h_lower"            value="$(arg h_lower)"/>
+        <param name="s_lower"            value="$(arg s_lower)"/>
+        <param name="v_lower"            value="$(arg v_lower)"/>
+        <param name="h_upper"            value="$(arg h_upper)"/>
+        <param name="s_upper"            value="$(arg s_upper)"/>
+        <param name="v_upper"            value="$(arg v_upper)"/>
+        
+    </node>
+
+</launch>

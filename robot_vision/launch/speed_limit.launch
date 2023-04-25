@@ -1,0 +1,13 @@
+<launch>
+
+    <arg name="limit_area_r" default="-5"/>  
+    <arg name="threshold_min" default="100"/>  
+    <arg name="threshold_max" default="255"/>
+    <node pkg="robot_vision" name="speedlimit" type="speed_limit.py" output="screen">
+        <param name="limit_area_r"              value="$(arg limit_area_r)"/>
+        <param name="threshold_min"             value="$(arg threshold_min)"/>
+        <param name="threshold_max"             value="$(arg threshold_max)"/>
+        
+    </node>
+
+</launch>

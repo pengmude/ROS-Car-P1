@@ -1,0 +1,111 @@
+以下是一个示例程序，用于将ROS和TensorFlow框架结合使用，实现对图像中限速牌数字的识别：
+
+```python
+#!/usr/bin/env python
+
+import rospy
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+import cv2
+import tensorflow as tf
+import numpy as np
+
+class SpeedLimitDetector():
+
+    def __init__(self):
+	
+        # 加载模板图片
+        self.templates = []
+		# 30~120
+        for i in range(30, 130, 10):
+            filename = "template/template_{}.png".format(i)
+            img = cv2.imread(filename, 0)
+            img = cv2.resize(img, (28, 28))
+            self.templates.append(img)
+
+        # 创建ROS节点和订阅者
+        rospy.init_node('speed_limit_detector')
+        self.img_sub = rospy.Subscriber('/camera/image_raw', Image, self.image_callback)
+        self.cv_bridge = CvBridge()
+
+    def image_callback(self, img_msg):
+        # 将ROS图像消息转换为OpenCV图像格式
+        cv_img = self.cv_bridge.imgmsg_to_cv2(img_msg, desired_encoding='bgr8')
+
+        # 在图像中查找圆
+        gray_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
+        circles = cv2.HoughCircles(gray_img, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=0, maxRadius=int(min(gray_img.shape)/2))
+
+        if circles is not None:
+            # 找到圆后，将圆内的区域截取下来，进行数字识别
+            img, x, y, r = self.circle_crop(cv_img, circles[0])
+            digit = self.detect_digit(img)
+
+            # 显示结果
+            if digit is not None:
+                rospy.loginfo("Detected speed limit: {} km/h".format(digit))
+                cv2.putText(cv_img, "Speed Limit: {} km/h".format(digit), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+        # 显示图像
+        cv2.imshow('Speed Limit Detector', cv_img)
+        cv2.waitKey(1)
+
+    def circle_crop(self, img, circle):
+        x = int(circle[0][0])
+        y = int(circle[0][1])
+        r = int(circle[0][2] * 0.5)
+        cropped_img = img[y-r:y+r, x-r:x+r]
+        return cropped_img, x, y, r
+
+    def detect_digit(self, img):
+        # 缩小图像到28*28像素，变为灰度图，并二值化处理
+        img = cv2.resize(img, (28, 28))
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, binary_img = cv2.threshold(gray_img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+        binary_img = cv2.bitwise_not(binary_img)
+
+        # 使用模板匹配获取数字
+        max_match = None
+        match_idx = None
+        for i, template in enumerate(self.templates):
+            result = cv2.matchTemplate(binary_img, template, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(result)
+            if max_match is None or max_val > max_match:
+                max_match = max_val
+                match_idx = i * 10
+
+        if max_match > 0.6:
+            return match_idx + 30
+        else:
+            return None
+
+    def run(self):
+        rospy.spin()
+
+    def __del__(self):
+        self.sess.close()
+
+if __name__ == '__main__':
+    detector = SpeedLimitDetector()
+    detector.run()
+```
+
+这个示例程序的实现步骤包括：
+
+1. 创建TensorFlow图，并加载已训练的模型。
+
+2. 加载所有的限速牌模板图片，并将其缩放为28x28像素大小。
+
+3. 创建ROS节点和订阅者，接收来自摄像头的图像消息。
+
+4. 在图像中查找圆，如果发现则截取圆形区域进行数字识别。
+
+5. 在截取的圆形区域中，先将图像缩放到28x28大小，并将其变为灰度图像。然后使用二值化处理，只保留红色圆圈中的数字，其余部分变成白色。
+
+6. 对于每张限速牌模板图片，使用OpenCV的模板匹配功能来寻找数字，得到最佳匹配的模板，返回其代表的数字。
+
+7. 将程序识别到的数字展示在原始图像上。
+
+8. 通过cv2.imshow()函数，将图像实时显示在屏幕上。
+
+注意，本示例程序仅供参考，可能需要根据具体硬件和数据集情况进行适当修改。
