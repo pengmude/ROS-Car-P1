@@ -29,6 +29,11 @@ class light_color:
         self.s_upper = int(rospy.get_param('~s_upper',255))
         self.v_upper = int(rospy.get_param('~v_upper',255))
 
+        self.col_1 = int(rospy.get_param('~col_1',260))
+        self.col_2 = int(rospy.get_param('~col_2',380))
+        self.row_1 = int(rospy.get_param('~row_1',60))
+        self.row_2 = int(rospy.get_param('~row_2',180))
+
     def dynamic_reconfigure_callback(self,config,level):
         # update config param
         self.h_lower = config.h_lower

@@ -1,0 +1,11 @@
+<launch>
+
+    <arg name="test_mode"   default="False"/>
+
+    <node pkg="robot_vision" name="speedlimit" type="speed_detector.py" output="screen">
+        
+    <param name="test_mode"          value="$(arg test_mode)"/>
+
+    </node>
+
+</launch>

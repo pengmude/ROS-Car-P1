@@ -8,6 +8,11 @@
     <arg name="s_upper" default="255"/>  
     <arg name="v_upper" default="255"/>
 
+    <arg name="col_1" default="282"/>  
+    <arg name="col_2" default="422"/>  
+    <arg name="row_1" default="19"/>
+    <arg name="row_2" default="79"/>
+
     <node pkg="robot_vision" name="lightcolor" type="light_detector.py" output="screen">
         <param name="h_lower"            value="$(arg h_lower)"/>
         <param name="s_lower"            value="$(arg s_lower)"/>
@@ -15,6 +20,10 @@
         <param name="h_upper"            value="$(arg h_upper)"/>
         <param name="s_upper"            value="$(arg s_upper)"/>
         <param name="v_upper"            value="$(arg v_upper)"/>
+        <param name="col_1"              value="$(arg col_1)"/>
+        <param name="col_2"              value="$(arg col_2)"/>
+        <param name="row_1"              value="$(arg row_1)"/>
+        <param name="row_2"              value="$(arg row_2)"/>
         
     </node>
 
