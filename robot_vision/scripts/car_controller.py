@@ -24,6 +24,9 @@ class RosCarController:
         self.line_pos = -1
         # 获取launch参数
         self.v0 = float(rospy.get_param('~v0',40.0))
+        if self.v0 <= 0 and self.v0 >= 120:
+            print('小车初始速度设置超出范围！')
+            return -1
 
         self.bridge = CvBridge()
         # 订阅红绿灯节点发布的消息
@@ -64,14 +67,38 @@ class RosCarController:
 
 
     # 根据线的位置和图像中垂线计算角速度
-    def calculate_turning_angle(self, line_center, image_center):
-        if abs(line_center - image_center) / image_center <= 0.06:
+    def calculate_turning_angle(self, image_center, line_center):
+        if line_center/image_center > 0.94 and line_center/image_center < 1.06:
             
-            pass    # TODO:小角度
+            return 0    # 保持直线行驶
         else:
-            pass    # TODO:大角度
-        # return ang_vel
+            return self.set_angular(image_center, line_center)    # 设置角速度拐弯
 
+    # 设置角度
+    def set_angular(self,image_center,line_center):
+        if self.v0 > 20 and self.v0 <= 30:
+            angular = float((image_center - line_center) / image_center) / 1.5
+        elif self.v0 > 30 and self.v0 <= 40:
+            angular = float((image_center - line_center) / image_center) / 1.3
+        elif self.v0 > 40 and self.v0 <= 50:
+            angular = float((image_center - line_center) / image_center) / 1.2
+        elif self.v0 > 50 and self.v0 <= 60:
+            angular = float((image_center - line_center) / image_center) / 1.1
+        elif self.v0 > 60 and self.v0 <= 70:
+            angular = float((image_center - line_center) / image_center) / 1.0
+        elif self.v0 > 70 and self.v0 <= 80:
+            angular = float((image_center - line_center) / image_center) / 0.9
+        elif self.v0 > 80 and self.v0 <= 90:
+            angular = float((image_center - line_center) / image_center) / 0.80
+        elif self.v0 > 90 and self.v0 <= 100:
+            angular = float((image_center - line_center) / image_center) / 0.75
+        elif self.v0 > 100 and self.v0 <= 110:
+            angular = float((image_center - line_center) / image_center) / 0.72
+        elif self.v0 > 110 and self.v0 <= 120:
+            angular = float((image_center - line_center) / image_center) / 0.70
+        else:
+            angular = 0
+        return angular
 
     # 获取红绿灯的颜色
     def get_light_color(self):
