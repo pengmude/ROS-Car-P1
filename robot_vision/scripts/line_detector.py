@@ -6,7 +6,7 @@ import rospy
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
-from std_msgs.msg import Int8
+from std_msgs.msg import Int32
 import numpy as np
 from dynamic_reconfigure.server import Server
 from robot_vision.cfg import line_hsvConfig
@@ -33,8 +33,8 @@ class line_follow:
         self.image_sub = rospy.Subscriber("/image_raw", Image, self.callback)
         self.line_mask_pub = rospy.Publisher("/line_mask_image", Image, queue_size=1)
         self.line_result_pub = rospy.Publisher("/line_result_image", Image, queue_size=1)
-        self.line_pos_pub = rospy.Publisher("/line_pos", Int8, queue_size=1)
-        self.srv = Server(line_hsvConfig,self.dynamic_reconfigure_callback)
+        self.line_pos_pub = rospy.Publisher("/line_pos", Int32, queue_size=1)
+        self.srv = Server(line_hsvConfig, self.dynamic_reconfigure_callback)
         
 
     def dynamic_reconfigure_callback(self,config,level):
@@ -91,12 +91,9 @@ class line_follow:
                         cv2.circle(res, (self.center_point,self.hsv_image.shape[0]*self.green_line/16+i), 5, (0,0,255), 5)
                         cv2.line(res,(0, self.hsv_image.shape[0]*self.green_line/16+i), (self.hsv_image.shape[1], self.hsv_image.shape[0]*self.green_line/16+i), (0,255,0), 2)
                         break
-
-        if self.center_point:
-            self.line_pos_pub.publish(int(self.center_point))
-        else:
-             self.line_pos_pub.publish(-1)
-        self.center_point = -1
+        # 发布识别到的中点
+        self.line_pos_pub.publish(self.center_point)
+        print(self.center_point)
 
         # 将OpenCV格式图像转化为ROS消息格式，然后发布出去
         try:
@@ -114,7 +111,7 @@ class line_follow:
 if __name__ == '__main__':
     try:
         # init ROS node 
-        rospy.init_node("line_detector",anonymous=True)
+        rospy.init_node("line_detector")
         rospy.loginfo("Starting Line Follow node")
         line_follow()
         rospy.spin()
