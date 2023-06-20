@@ -93,7 +93,8 @@ class line_follow:
                         break
         # 发布识别到的中点
         self.line_pos_pub.publish(self.center_point)
-        print(self.center_point)
+        # print(self.center_point)
+        self.center_point = -1
 
         # 将OpenCV格式图像转化为ROS消息格式，然后发布出去
         try:

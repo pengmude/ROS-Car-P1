@@ -1,7 +1,6 @@
 <launch>
 
     <arg name="v0"          default="40"/>
-
     <node pkg="robot_vision" name="carcontroller" type="car_controller.py" output="screen">
         <param name="v0"                 value="$(arg v0)"/>
     </node>

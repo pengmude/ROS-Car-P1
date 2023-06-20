@@ -20,7 +20,8 @@ class SpeedLimitDetector():
             filename = os.path.join(os.path.dirname(__file__), "../data/template_imgs/template_{}.png".format(i))
             img = cv2.imread(filename, 0)
             if img is not None:
-                print(img.shape)
+                # print(img.shape)
+                pass
             else:
                 print("Can not read this image !")
             # img = cv2.resize(img, (72, 72))
@@ -71,7 +72,7 @@ class SpeedLimitDetector():
                     img, x, y, r = self.circle_crop(cv_img, circle)
                     # 识别出数字
                     digit_index, value = self.detect_digit(img)
-                    print('index: {},   value: {}'.format(digit_index, value))
+                    # print('index: {},   value: {}'.format(digit_index, value))
                     # 将识别到的圆形限速牌轮廓标注在图像上
                     cv2.circle(cv_img, (x, y), r+20, (0,255,0), 3)
                     cv2.putText(cv_img, "{}".format(value), (x-80, y+150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -83,7 +84,7 @@ class SpeedLimitDetector():
                     # 匹配相似值保留2位小数
                     value = round(value, 2)
                     # 显示限速结果和匹配值，匹配值介于0~1之间，越小匹配度越高和匹配值，匹配值介于0~1之间，越小匹配度越高
-                    if value < 0.45:
+                    if value < 0.85:
                         rospy.loginfo("识别到限速: {} km/h".format(digit_index*10+30))
                         rospy.loginfo("匹配值： {}".format(value))
                         cv2.putText(cv_img, "Speed Limit: {}".format(digit_index*10+30), (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)

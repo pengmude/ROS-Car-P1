@@ -1,0 +1,27 @@
+<launch>
+
+    <!--启动实时图像采集-->
+    <node pkg="rqt_image_view" name="rqt_image_view" type="rqt_image_view"/>
+
+    <!--启动巡线功能-->
+    <include file="$(find robot_vision)/launch/line_detector.launch"/>
+
+    <!--启动底盘动力-->
+    <include file="$(find base_control)/launch/base_control.launch"/>
+
+    <!--启动限速功能-->
+    <include file="$(find robot_vision)/launch/speed_detector.launch"/>
+
+    <!--启动小车控制-->
+    <arg name="v0"   default="60"/>
+    <include file="$(find robot_vision)/launch/car_controller.launch">
+        <arg name="v0" value="$(arg v0)"/>
+    </include>
+
+    <!--启动红绿灯识别-->
+    <include file="$(find robot_vision)/launch/light_color.launch"/>
+    
+    <!--启动相机-->
+    <include file="$(find robot_vision)/launch/robot_camera.launch"/>
+
+</launch>
